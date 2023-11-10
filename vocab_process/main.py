@@ -15,10 +15,18 @@ import random
 
 random.seed(40)
 
-# pcap_dir = "I:\\dataset\\"
-# tls_date = [20210301,20210808]
-# pcap_name = "app_A.pcap"
-# #pcap_name = "merge.pcap"
+## ---------------------------- ## 
+
+## @Linchg 2023.11.10 ###
+
+# word就语料库文件
+# vocab是最终输出的单词库（词库）
+# 核心代码是build_BPE()和build_vocab()
+# build_BPE()是训练一个分词机，但是目前是基于wordpiece，需要改为BPE
+# build_vocab()是将build_BPE()获得的分词器中的结果保存成一个词库文件（txt格式）
+# 这个文件目录下的encryptd_vocab.txt是当前采用的词库文件，可以作为参考
+
+## ---------------------------- ## 
 
 word_dir = "/sharefs/plm/mxy/output/exper_result/corpora/"
 word_name = "encrypted_burst.txt"
