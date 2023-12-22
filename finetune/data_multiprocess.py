@@ -5,16 +5,27 @@ import os
 import sys
 import copy
 import tqdm
-
+import time
 import scapy.all as scapy
 import argparse
+from multiprocessing import Process, cpu_count, Pool
 
+## 多进程数据清洗模块
+def clean_process(pcap_file, target_file):
+    print('process {} starts'.format(os.getpid()))
+    # 这是ET-BERT使用的默认DCS
+    clean_protocols_DCS1 = '"not arp and not dns and not stun and not dhcpv6 and not icmpv6 and not icmp and not dhcp and not llmnr and not nbns and not ntp and not igmp and frame.len > 80"'
+    # 这是对于application(17)任务而言，frame.len > 80最优的DCS
+    cmd = "tshark -F pcap -r %s -Y %s -w %s"
+    command = cmd % (pcap_file, clean_protocols_DCS1, target_file)
+    os.system(command)
+    
 ## 数据清洗模块
 def data_clean(Raw_path, cleaned_path):
     print("Begin to Data Cleaning !")
-    
+    p = Pool(128)
     for _parent,_dirs,_files in os.walk(Raw_path):
-        for _dir in _dirs:
+        for _dir in tqdm.tqdm(_dirs):
             print("currently processing %s" % _dir)
             current_path = os.path.join(_parent, _dir)
             target_path = os.path.join(cleaned_path, _dir)
@@ -26,18 +37,12 @@ def data_clean(Raw_path, cleaned_path):
             
             # 正式的 data clean 实现
             for parent,dirs,files in os.walk(current_path):
-                for file in files:
+                for file in tqdm.tqdm(files):
                     pcap_file = os.path.join(current_path, file)
                     target_file = os.path.join(target_path, file)
-                    # 这是ET-BERT使用的默认DCS
-                    clean_protocols_DCS1 = '"not arp and not dns and not stun and not dhcpv6 and not icmpv6 and not icmp and not dhcp and not llmnr and not nbns and not ntp and not igmp and frame.len > 80"'
-                    # 这是对于application(17)任务而言，最优的DCS
-                    # clean_protocols_DCS2 = '"not arp and not dhcpv6 and not dhcp and not bootp "'
-
-                    cmd = "tshark -F pcap -r %s -Y %s -w %s"
-                    command = cmd % (pcap_file, clean_protocols_DCS1, target_file)
-                    os.system(command)
-    
+                    p.apply_async(clean_process, (pcap_file, target_file))
+    p.close()
+    p.join()
     print("Finish Data Cleaning !")
     return 0
 
