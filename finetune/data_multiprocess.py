@@ -117,25 +117,45 @@ def split_pcap(Raw_path, sliced_path):
 
 
 if __name__ == '__main__':
-    
-    # Raw_path = "/Volumes/LCG_2/Datasets/USTC-TFC2016/Software/Raw"
-    pcapng2pcap_path = "/Volumes/LCG_2/Datasets/ISCX-VPN/application/pcapng2pcap"
-    sliced_path = "/Volumes/LCG_2/Datasets/ISCX-VPN/application/sliced"
-    # cleaned_path = "/Users/cglin/Desktop/DCS/USTCTFC/Attack/cleaned_1"
+
+     parser = argparse.ArgumentParser(description='Test for argparse')
+
+    # 切分后pacp文件的目录
+    parser.add_argument("--Raw_path", type=str,
+                        help='''Path of the pcap dataset path(e.g., "/Users/cglin/Desktop/DCS/application/sliced/")''')
+
+    # 切分后pacp文件的目录
+    parser.add_argument("--pcapng2pcap_path", type=str,
+                        help='''Path of the pcap dataset path(e.g., "/Users/cglin/Desktop/DCS/application/sliced/")''')
+
+    # corpora文件的目录地址
+    parser.add_argument("--sliced_path", type=str,
+                        help='''Path of the corpora dataset path(e.g., "/Users/cglin/Desktop/DCS/application/sliced/")''')
+
+    # corpora文件的文件名称
+    parser.add_argument("--cleaned_path", type=str,
+                        help='''filename of the corpora dataset path(e.g., "encryptd_vocab_all.txt")''')
+
+    args = parser.parse_args()
+    print('main process is {}'.format(os.getpid()))
+    print('core number is {}'.format(cpu_count()))
+    start_time = time.time()
     
     # if not os.path.exists(pcapng2pcap_path):
     #     print("[pcapng2pcap_path] : Creating target dir %s" % pcapng2pcap_path)
     #     os.makedirs(pcapng2pcap_path)
-    #     pcapng2pcap(Raw_path, pcapng2pcap_path)
+    #     pcapng2pcap(args.Raw_path, args.pcapng2pcap_path)
     
     if not os.path.exists(sliced_path):
         print("[sliced_path] : Creating target dir %s" % sliced_path)
         os.makedirs(sliced_path)
-        split_pcap(pcapng2pcap_path, sliced_path)
+        split_pcap(args.pcapng2pcap_path, args.sliced_path)
     
     
     # if not os.path.exists(cleaned_path):
     #     print("[cleaned_path] : Creating target dir %s" % cleaned_path)
     #     os.makedirs(cleaned_path)
-    #     data_clean(sliced_path, cleaned_path)
+    #     data_clean(args.sliced_path, args.cleaned_path)
+    end_time = time.time()
+    print('total time is {}'.format(str(end_time - start_time)))
     
