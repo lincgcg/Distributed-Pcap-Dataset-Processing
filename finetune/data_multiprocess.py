@@ -74,13 +74,21 @@ def pcapng2pcap(Raw_path, pcapng2pcap_path):
 
     print("Finish convert pcapng to pcap")
 
+## 多进程split模块
+def split_process(target_path, pcap_file):
+    print('process {} starts'.format(os.getpid()))
+    cmd = "mono SplitCap.exe -r %s -s session -o " + target_path
+    command = cmd%pcap_file
+    os.system(command)
+
+
 ## split .pcap 模块
 def split_pcap(Raw_path, sliced_path):
     
     print("Begin to split pcap as session flows.") 
-    
+    p = Pool(100)
     for _parent,_dirs,_files in os.walk(Raw_path):
-        for _dir in _dirs:
+        for _dir in tqdm.tqdm(_dirs):
             print("currently processing %s" % _dir)
             current_path = os.path.join(_parent, _dir)
             target_path = os.path.join(sliced_path, _dir)
@@ -92,20 +100,19 @@ def split_pcap(Raw_path, sliced_path):
 
             # 正式的 split pcap
             for parent,dirs,files in os.walk(current_path):
-                for file in files:
-                    pcap_file = os.path.join(current_path, file)
-                    # cmd = "mono /Volumes/LCG_2/Datasets/SplitCap.exe -r %s -s session -o " + target_path 
-                    cmd = "mono /Users/cglin/Desktop/ICT/Mining-Traffic-Classification/GPT_results/SplitCap.exe -r %s -s session -o " + target_path
-                    # cmd = "mono /Users/cglin/Desktop/DCS/SplitCap2.exe -r %s -s session -o " + target_path
-
-                    # with open(pcap_file, 'rb') as file_handle:
-                    #     command = cmd % pcap_file
-                    #     os.system(command)
-                    # file_handle.close()
-                    command = cmd%pcap_file
-                    os.system(command)
-
-
+                for file in tqdm.tqdm(files):
+                    # process for aws-data
+                    pcap_newfile = os.path.join(current_path, file)
+                    if file.split(".")[-1] != "pcap": 
+                        filename = file + ".pcap"
+                        filename = filename.replace(" ","")
+                        pcap_file = os.path.join(current_path, file)
+                        pcap_newfile = os.path.join(current_path, filename)
+                        os.rename(pcap_file, pcap_newfile)
+                        print(pcap_newfile)
+                    p.apply_async(split_process, (target_path, pcap_newfile))
+    p.close()
+    p.join()
     print("Finish split pcap as session flows")
 
 
