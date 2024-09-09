@@ -65,7 +65,7 @@ def get_feature_packet(label_pcap, payload_len=128):
     with scapy.PcapReader(label_pcap) as pcap_reader:
         for i, packet in tqdm.tqdm(enumerate(pcap_reader)):
 
-        # 改变头部字段的信息
+        # 改变头部字段的信息 其中V1-Raw版本不置零，V1-mask版本置零
             if 'Ethernet' in packet:
                 packet['Ethernet'].src = "00:00:00:00:00:00"
                 packet['Ethernet'].det = "00:00:00:00:00:00"
@@ -75,15 +75,46 @@ def get_feature_packet(label_pcap, payload_len=128):
             if 'TCP' in packet: 
                 packet['TCP'].sport = 0
                 packet['TCP'].dport = 0
-            
-            packet_data = packet
-            data = (binascii.hexlify(bytes(packet_data)))
-            packet_string = data.decode()
-            new_packet_string = packet_string[0:]
-            # 如果使用bigram, 那么num_interval = 1, 否则正常情况下num_interval = 2
-            packet_data_string = bigram_generation(new_packet_string, packet_len=payload_len, flag = True, num_interval = 2)
-            feature_data.append(packet_data_string)
 
+            # V0版本
+            # packet_data = packet
+            # data = (binascii.hexlify(bytes(packet_data)))
+            # packet_string = data.decode()
+            # new_packet_string = packet_string[0:]
+            # # 如果使用bigram, 那么num_interval = 1, 否则正常情况下num_interval = 2
+            # packet_data_string = bigram_generation(new_packet_string, packet_len=payload_len, flag = True, num_interval = 2)
+            # feature_data.append(packet_data_string)
+
+            # V1版本
+            if 'Raw' not in packet:
+                # 获得header信息
+                header_data = packet
+                data = (binascii.hexlify(bytes(header_data)))
+                packet_string = data.decode()
+                header_packet_string = packet_string[0:]
+                print(header_packet_string)
+                # 获得payload信息
+                payload_packet_string = ""
+                feature_data.append(header_packet_string)
+                feature_data.append(payload_packet_string)
+                feature_data.append("")
+            else:
+                # 获得header信息
+                headers = packet.copy()
+                del headers['Raw']
+                headers_data = headers
+                data = (binascii.hexlify(bytes(headers_data)))
+                packet_string = data.decode()
+                header_packet_string = packet_string[0:]
+                # 获得payload信息
+                packet_data = packet['Raw'].load
+                data = (binascii.hexlify(bytes(packet_data)))
+                packet_string = data.decode()
+                payload_packet_string = packet_string[0:]
+                feature_data.append(header_packet_string)
+                feature_data.append(payload_packet_string)
+                feature_data.append("")
+            
     if len(feature_data) == 0:
         return -1
 
@@ -105,7 +136,7 @@ def process_func(current_path, _dir, file, args):
 
 def generate_corpora(args):
     #设置进程数量
-    p = Pool(4)
+    p = Pool(40)
     for _parent,_dirs,_files in os.walk(args.pcap_path):
         for _dir in tqdm.tqdm(_dirs):
             print("currently processing %s" % _dir)
