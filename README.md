@@ -23,4 +23,26 @@
 
 - 百度网盘链接
   - 链接: https://pan.baidu.com/s/1QXB6bnfE_G2STFeVG8tFkg 
-  - 提取码: 1101 
+  - 提取码: 1101
+ 
+
+# pretrain/split_header_payload.py
+
+## 指令格式
+``````
+/Library/Frameworks/Python.framework/Versions/3.10/bin/python3 /Users/cglin/Desktop/Distributed-Pcap-Dataset-Processing/pretrain/split_header_payload.py --corpora_dir /Users/cglin/Desktop/dataset_name/corpora --dataset_dir /Users/cglin/Desktop/dataset_name --dataset_name application_raw
+``````
+
+
+## 输入文件格式
+
+- dataset_name
+  - corpora
+    - facebook_audio1a.txt
+    - facebook_audio1b.txt
+    - facebook_audio2a.txt
+   
+## 输出文件格式
+
+- 三个txt文件，header，payload，packet
+- 一行一条数据
