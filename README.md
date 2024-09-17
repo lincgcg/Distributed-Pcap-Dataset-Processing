@@ -27,6 +27,9 @@
 
 
  # pretrain/corpora_generation_multiprocessing.py
+## 环境与版本
+V0和V1版本的切换暂时需要在代码里进行修改。
+环境需安装代码中导入的对应包
 
 ## 指令格式
 
