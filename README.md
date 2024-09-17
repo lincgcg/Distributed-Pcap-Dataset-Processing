@@ -24,13 +24,34 @@
 - 百度网盘链接
   - 链接: https://pan.baidu.com/s/1QXB6bnfE_G2STFeVG8tFkg 
   - 提取码: 1101
- 
+
+
+ # pretrain/corpora_generation_multiprocessing.py
+
+## 指令格式
+
+``````
+python /data/dell/Distributed-Pcap-Dataset-Processing/pretrain/corpora_generation_multiprocessing.py --pcap_path /data/dell/processed_data/dataset_name/pcapng2pcap --corpora_dir /data/dell/processed_data/dataset_name/corpora
+``````
+
+## 输入文件格式
+
+- pcap_data
+  - A
+    - facebook_audio1a.pcap
+    - facebook_audio1b.pcap
+    - facebook_audio2a.pcap
+
+## 输出文件格式
+
+- txt文件
+- 三行为一个packet：一行header，一行payload，一行空格
 
 # pretrain/split_header_payload.py
 
 ## 指令格式
 ``````
-/Library/Frameworks/Python.framework/Versions/3.10/bin/python3 /Users/cglin/Desktop/Distributed-Pcap-Dataset-Processing/pretrain/split_header_payload.py --corpora_dir /Users/cglin/Desktop/dataset_name/corpora --dataset_dir /Users/cglin/Desktop/dataset_name --dataset_name application_raw
+python /data/dell/Distributed-Pcap-Dataset-Processing/pretrain/split_header_payload.py --corpora_dir /data/dell/processed_data/dataset_name/corpora --dataset_dir /data/dell/processed_data/dataset_name --dataset_name application_raw
 ``````
 
 
